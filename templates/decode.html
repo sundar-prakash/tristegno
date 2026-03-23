@@ -1,0 +1,96 @@
+{% extends 'layout.html' %} {% block title %}Decode Hidden Message{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-light-blue">
+        <div class="card-header">
+          <h4 class="mb-0"><i class="fas fa-eye"></i> Decode Hidden Message</h4>
+        </div>
+        <div class="card-body">
+          <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <div class="mb-4">
+              <label for="file" class="form-label fw-bold"
+                >Upload Media File</label
+              >
+              <input
+                type="file"
+                class="form-control"
+                id="file"
+                name="file"
+                accept=".png,.jpg,.jpeg,.gif,.bmp,.tiff,.wav,.mp3,.ogg,.mp4,.avi,.mov,.mkv,.wmv,.webm"
+                required
+              />
+              <div class="form-text">
+                <i class="fas fa-info-circle text-primary"></i>
+                Upload the file containing the hidden message (Images, Audio, or
+                Video)
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="private_key" class="form-label fw-bold"
+                >Your Private Key</label
+              >
+              <textarea
+                class="form-control code-font"
+                id="private_key"
+                name="private_key"
+                rows="12"
+                placeholder="-----BEGIN PRIVATE KEY-----&#10;Paste your private key here...&#10;-----END PRIVATE KEY-----"
+                required
+                style="font-size: 0.85rem; line-height: 1.4"
+              ></textarea>
+              <div class="form-text text-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Important:</strong> Use the private key that matches the
+                public key used during encoding. Never share your private key
+                with anyone! It's processed locally and never stored.
+              </div>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-success btn-lg">
+                <i class="fas fa-unlock"></i> Decrypt & Extract Message
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-md-6">
+          <div class="card border-0 bg-light-blue h-100">
+            <div class="card-body text-center">
+              <i
+                class="fas fa-shield-alt text-success mb-2"
+                style="font-size: 2rem"
+              ></i>
+              <h6 class="fw-bold">Security First</h6>
+              <small class="text-gray-600"
+                >Your private key is processed locally and never stored</small
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card border-0 bg-light-blue h-100">
+            <div class="card-body text-center">
+              <i
+                class="fas fa-file-alt text-primary mb-2"
+                style="font-size: 2rem"
+              ></i>
+              <h6 class="fw-bold">Supported Formats</h6>
+              <small class="text-gray-600"
+                >Images, Audio (WAV, MP3, OGG), Video (MP4, AVI, MOV, MKV, WMV,
+                WEBM)</small
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

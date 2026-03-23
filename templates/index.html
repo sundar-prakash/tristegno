@@ -1,0 +1,305 @@
+{% extends 'layout.html' %}
+{% block title %}TriSegno - Secure Steganography Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <div class="mb-4">
+                    <h1 class="display-4 fw-bold mb-3 text-primary-gradient">
+                        Hide Messages in Plain Sight
+                    </h1>
+                    <p class="lead mb-4 text-gray-600">
+                        TriSegno is a cutting-edge steganography platform that conceals your confidential messages 
+                        inside everyday media files using military-grade encryption.
+                    </p>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <span class="security-badge">
+                            <i class="fas fa-key"></i> RSA-2048 Encryption
+                        </span>
+                        <span class="security-badge">
+                            <i class="fas fa-shield-virus"></i> AES-256 Hybrid
+                        </span>
+                        <span class="security-badge">
+                            <i class="fas fa-user-secret"></i> Zero-Knowledge
+                        </span>
+                    </div>
+                    
+                    {% if current_user.is_authenticated %}
+                    <div class="d-flex gap-3">
+                        <a href="{{ url_for('stego.encode') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-eye-slash"></i> Hide Message
+                        </a>
+                        <a href="{{ url_for('stego.decode') }}" class="btn btn-success btn-lg">
+                            <i class="fas fa-eye"></i> Decode Message
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="d-flex gap-3">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-rocket"></i> Get Started Free
+                        </a>
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-0">
+                        <div class="row g-0">
+                            <div class="col-6 p-4 bg-light-blue">
+                                <div class="text-center">
+                                    <i class="fas fa-image text-primary mb-2" style="font-size: 2rem;"></i>
+                                    <h6>Original Image</h6>
+                                    <small class="text-gray-600">Innocent looking photo</small>
+                                </div>
+                            </div>
+                            <div class="col-6 p-4" style="background: linear-gradient(135deg, #2563eb, #1e40af);">
+                                <div class="text-center text-white">
+                                    <i class="fas fa-user-secret mb-2" style="font-size: 2rem;"></i>
+                                    <h6>Hidden Message</h6>
+                                    <small>Encrypted & Invisible</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-3 bg-white border-top text-center">
+                            <small class="code-font text-gray-600">
+                                <i class="fas fa-arrow-right text-primary"></i> 
+                                Steganography + Cryptography = Perfect Security
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Features Section -->
+    <div class="row mb-5">
+        <div class="col-12 text-center mb-5">
+            <h2 class="fw-bold text-dark">Why Choose TriSegno?</h2>
+            <p class="text-gray-600">Enterprise-grade security meets user-friendly design</p>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center border-light-blue">
+                <div class="card-body p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Military-Grade Security</h5>
+                    <p class="text-gray-600">
+                        RSA-2048 public key encryption with AES-256 hybrid system. 
+                        Your messages are protected by the same algorithms used by governments.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center border-light-blue">
+                <div class="card-body p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-eye-slash"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Invisible Hiding</h5>
+                    <p class="text-gray-600">
+                        Advanced LSB steganography makes your secret messages completely invisible. 
+                        Files look identical to the original.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 text-center border-light-blue">
+                <div class="card-body p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Multiple Formats</h5>
+                    <p class="text-gray-600">
+                        Hide messages in images (PNG, JPG), audio files (WAV), and video files. 
+                        Perfect for any communication need.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-light-blue">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-cogs"></i> How TriSegno Works</h3>
+                </div>
+                <div class="card-body bg-light-blue">
+                    <div class="row">
+                        <div class="col-lg-3 text-center mb-4">
+                            <div class="position-relative">
+                                <div class="feature-icon">
+                                    <span class="fw-bold">1</span>
+                                </div>
+                                <h6 class="fw-bold text-dark">Upload Media</h6>
+                                <p class="text-gray-600 small">Choose your cover file</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 text-center mb-4">
+                            <div class="position-relative">
+                                <div class="feature-icon">
+                                    <span class="fw-bold">2</span>
+                                </div>
+                                <h6 class="fw-bold text-dark">Enter Message</h6>
+                                <p class="text-gray-600 small">Type your secret text</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 text-center mb-4">
+                            <div class="position-relative">
+                                <div class="feature-icon">
+                                    <span class="fw-bold">3</span>
+                                </div>
+                                <h6 class="fw-bold text-dark">Encrypt & Hide</h6>
+                                <p class="text-gray-600 small">Auto-encryption & embedding</p>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-3 text-center mb-4">
+                            <div class="position-relative">
+                                <div class="feature-icon">
+                                    <span class="fw-bold">4</span>
+                                </div>
+                                <h6 class="fw-bold text-dark">Download & Share</h6>
+                                <p class="text-gray-600 small">Share like normal media</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Notice -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="alert alert-warning border-0">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h6 class="fw-bold mb-2">
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            Security Notice
+                        </h6>
+                        <p class="mb-0">
+                            Your private keys are generated client-side and never stored on our servers. 
+                            Keep them safe - lost keys mean lost messages forever.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <div class="security-badge">
+                            <i class="fas fa-user-shield"></i> Zero-Knowledge Architecture
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section (if user is logged in) -->
+    {% if current_user.is_authenticated %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-light-blue">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-line"></i> 
+                        Welcome back, {{ current_user.email }}
+                    </h5>
+                </div>
+                <div class="card-body bg-light-blue">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="border-end">
+                                <h3 class="text-primary fw-bold">
+                                    <i class="fas fa-eye-slash"></i>
+                                </h3>
+                                <p class="mb-0 text-gray-600">Ready to hide messages</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="border-end">
+                                <h3 class="text-success fw-bold">
+                                    <i class="fas fa-shield-alt"></i>
+                                </h3>
+                                <p class="mb-0 text-gray-600">Account secured</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h3 class="text-warning fw-bold">
+                                <i class="fas fa-history"></i>
+                            </h3>
+                            <p class="mb-0">
+                                <a href="{{ url_for('stego.history') }}" class="text-decoration-none text-primary">
+                                    View history
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Add some interactivity
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate feature cards on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    // Apply animation to cards
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+        observer.observe(card);
+    });
+
+    // Security badge pulse effect
+    const badges = document.querySelectorAll('.security-badge');
+    badges.forEach(badge => {
+        badge.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.05)';
+        });
+        badge.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+});
+</script>
+{% endblock %}

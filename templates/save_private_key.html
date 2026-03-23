@@ -1,0 +1,70 @@
+{% extends 'layout.html' %}
+{% block title %}Save Your Private Key{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="alert alert-warning" role="alert">
+                <h4 class="alert-heading"><i class="fas fa-exclamation-triangle"></i> CRITICAL: Save Your Private Key!</h4>
+                <p>Your new key pair has been generated. You MUST save your private key now - it will never be shown again.</p>
+            </div>
+            
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5><i class="fas fa-key"></i> Your Private Key (Save This!)</h5>
+                </div>
+                <div class="card-body">
+                    <textarea class="form-control" rows="15" readonly id="privateKey">{{ private_key }}</textarea>
+                    <div class="mt-3">
+                        <button class="btn btn-primary" onclick="copyPrivateKey()">
+                            <i class="fas fa-copy"></i> Copy Private Key
+                        </button>
+                        <button class="btn btn-success" onclick="downloadPrivateKey()">
+                            <i class="fas fa-download"></i> Download as File
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('stego.encode') }}">
+                        <input type="hidden" name="message" value="{{ message }}">
+                        <input type="hidden" name="filename" value="{{ filename }}">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="savedKey" required>
+                            <label class="form-check-label" for="savedKey">
+                                I have saved my private key securely
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-2">
+                            Continue with Encoding
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyPrivateKey() {
+    const privateKey = document.getElementById('privateKey');
+    privateKey.select();
+    document.execCommand('copy');
+    alert('Private key copied to clipboard!');
+}
+
+function downloadPrivateKey() {
+    const privateKey = document.getElementById('privateKey').value;
+    const blob = new Blob([privateKey], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'private_key.pem';
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+</script>
+{% endblock %}

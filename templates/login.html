@@ -1,0 +1,163 @@
+{% extends 'layout.html' %} {% block title %}Login - TriSegno{% endblock %} {%
+block content %}
+<div class="container">
+  <div class="row justify-content-center align-items-center min-vh-100 py-5">
+    <div class="col-lg-5 col-md-7">
+      <!-- Login Card -->
+      <div class="card border-light-blue shadow-lg">
+        <div class="card-header text-center">
+          <div class="feature-icon mx-auto mb-3">
+            <i class="fas fa-sign-in-alt"></i>
+          </div>
+          <h4 class="fw-bold mb-0">Welcome Back</h4>
+          <p class="text-white mb-0 opacity-75">
+            Sign in to your secure account
+          </p>
+        </div>
+        <div class="card-body p-5">
+          <form method="POST" id="loginForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <div class="mb-4">
+              <label for="email" class="form-label fw-bold">
+                <i class="fas fa-envelope text-primary"></i> Email Address
+              </label>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                placeholder="Enter your email"
+                required
+                autofocus
+              />
+            </div>
+
+            <div class="mb-4">
+              <label for="password" class="form-label fw-bold">
+                <i class="fas fa-lock text-primary"></i> Password
+              </label>
+              <div class="position-relative">
+                <input
+                  type="password"
+                  class="form-control"
+                  id="password"
+                  name="password"
+                  placeholder="Enter your password"
+                  required
+                />
+                <button
+                  type="button"
+                  class="btn btn-link position-absolute top-50 end-0 translate-middle-y text-gray-500"
+                  onclick="togglePassword()"
+                  style="border: none; background: none; padding-right: 15px"
+                >
+                  <i class="fas fa-eye" id="passwordToggle"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="mb-4 form-check">
+              <input type="checkbox" class="form-check-input" id="remember" />
+              <label class="form-check-label text-gray-600" for="remember">
+                Remember me on this device
+              </label>
+            </div>
+
+            <div class="d-grid mb-4">
+              <button
+                type="submit"
+                class="btn btn-primary btn-lg"
+                id="loginBtn"
+              >
+                <i class="fas fa-sign-in-alt"></i> Sign In Securely
+              </button>
+            </div>
+
+            <div class="text-center">
+              <p class="text-gray-600 mb-0">
+                Don't have an account?
+                <a
+                  href="{{ url_for('auth.register') }}"
+                  class="text-decoration-none fw-bold"
+                >
+                  Create one now
+                </a>
+              </p>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Security Notice -->
+      <div class="card border-0 bg-light-blue mt-4">
+        <div class="card-body text-center py-4">
+          <div class="row">
+            <div class="col-4">
+              <i
+                class="fas fa-shield-alt text-success mb-2"
+                style="font-size: 1.5rem"
+              ></i>
+              <h6 class="fw-bold text-dark">Encrypted</h6>
+              <small class="text-gray-600">End-to-end security</small>
+            </div>
+            <div class="col-4">
+              <i
+                class="fas fa-user-secret text-primary mb-2"
+                style="font-size: 1.5rem"
+              ></i>
+              <h6 class="fw-bold text-dark">Private</h6>
+              <small class="text-gray-600">Zero-knowledge architecture</small>
+            </div>
+            <div class="col-4">
+              <i
+                class="fas fa-lock text-warning mb-2"
+                style="font-size: 1.5rem"
+              ></i>
+              <h6 class="fw-bold text-dark">Secure</h6>
+              <small class="text-gray-600">Military-grade protection</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePassword() {
+    const passwordField = document.getElementById("password");
+    const toggleIcon = document.getElementById("passwordToggle");
+
+    if (passwordField.type === "password") {
+      passwordField.type = "text";
+      toggleIcon.className = "fas fa-eye-slash";
+    } else {
+      passwordField.type = "password";
+      toggleIcon.className = "fas fa-eye";
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("loginForm");
+    const loginBtn = document.getElementById("loginBtn");
+
+    form.addEventListener("submit", function () {
+      loginBtn.disabled = true;
+      loginBtn.innerHTML =
+        '<i class="fas fa-spinner fa-spin"></i> Signing In...';
+    });
+
+    // Add some interactive feedback
+    const inputs = document.querySelectorAll(".form-control");
+    inputs.forEach((input) => {
+      input.addEventListener("focus", function () {
+        this.parentElement.style.transform = "translateY(-2px)";
+      });
+
+      input.addEventListener("blur", function () {
+        this.parentElement.style.transform = "translateY(0)";
+      });
+    });
+  });
+</script>
+{% endblock %}

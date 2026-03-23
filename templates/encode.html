@@ -1,0 +1,330 @@
+{% extends 'layout.html' %} {% block title %}Hide Secret Message{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-light-blue">
+        <div class="card-header">
+          <h4 class="mb-0">
+            <i class="fas fa-eye-slash"></i> Hide Secret Message
+          </h4>
+        </div>
+        <div class="card-body">
+          <form method="POST" enctype="multipart/form-data" id="encodeForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <div class="mb-4">
+              <label for="file" class="form-label fw-bold"
+                >Select Media File</label
+              >
+              <input
+                type="file"
+                class="form-control"
+                id="file"
+                name="file"
+                accept=".png,.jpg,.jpeg,.gif,.bmp,.tiff,.wav,.mp3,.ogg,.mp4,.avi,.mov,.mkv,.wmv,.webm"
+                required
+              />
+              <div class="form-text">
+                <i class="fas fa-info-circle text-primary"></i>
+                Supported: Images (PNG, JPG, GIF, BMP, TIFF), Audio (WAV, MP3,
+                OGG), Video (MP4, AVI, MOV, MKV, WMV, WEBM)
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="message" class="form-label fw-bold"
+                >Secret Message</label
+              >
+              <textarea
+                class="form-control"
+                id="message"
+                name="message"
+                rows="5"
+                placeholder="Enter your confidential message here..."
+                required
+              ></textarea>
+              <div
+                class="d-flex justify-content-between align-items-center mt-2"
+              >
+                <div class="form-text">
+                  <span id="charCount" class="fw-bold">0</span> characters
+                  <span id="capacityInfo" class="text-muted"></span>
+                </div>
+                <div class="security-badge">
+                  <i class="fas fa-lock"></i> Auto-encrypted
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-bold"
+                ><i class="fas fa-key"></i> Encryption Key Selection</label
+              >
+              <div class="card border-light-blue bg-light-blue">
+                <div class="card-body">
+                  <div class="form-check mb-3">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="public_key_option"
+                      id="useOwnKey"
+                      value="own"
+                      checked
+                    />
+                    <label class="form-check-label" for="useOwnKey">
+                      <strong>Use My Own Public Key</strong>
+                      <small class="d-block text-muted"
+                        >Encrypt with your public key (you'll decrypt it later
+                        with your private key)</small
+                      >
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="public_key_option"
+                      id="useSenderKey"
+                      value="custom"
+                    />
+                    <label class="form-check-label" for="useSenderKey">
+                      <strong>Use Sender's/Recipient's Public Key</strong>
+                      <small class="d-block text-muted"
+                        >Encrypt with another person's public key (they'll
+                        decrypt it with their private key)</small
+                      >
+                    </label>
+                  </div>
+
+                  <div id="customKeySection" class="mt-3" style="display: none">
+                    <label for="custom_public_key" class="form-label"
+                      >Paste Public Key</label
+                    >
+                    <textarea
+                      class="form-control code-font"
+                      id="custom_public_key"
+                      name="custom_public_key"
+                      rows="8"
+                      placeholder="-----BEGIN PUBLIC KEY-----&#10;Paste the recipient's public key here...&#10;-----END PUBLIC KEY-----"
+                      style="font-size: 0.85rem; line-height: 1.4"
+                    ></textarea>
+                  </div>
+
+                  <div class="mt-3">
+                    <a
+                      class="text-decoration-none text-primary"
+                      data-bs-toggle="collapse"
+                      href="#myPublicKeyDisplay"
+                      role="button"
+                      aria-expanded="false"
+                    >
+                      <i class="fas fa-info-circle"></i> View My Public Key
+                      <i class="fas fa-chevron-down ms-1"></i>
+                    </a>
+                    <div class="collapse mt-2" id="myPublicKeyDisplay">
+                      <div class="card card-body bg-white">
+                        <small class="text-muted mb-2"
+                          >Your public key (share this with others):</small
+                        >
+                        <pre
+                          class="code-font mb-0"
+                          style="
+                            font-size: 0.75rem;
+                            max-height: 150px;
+                            overflow-y: auto;
+                          "
+                        >
+{{ current_user.public_key if current_user.public_key else 'No key generated yet' }}</pre
+                        >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="capacityIndicator" class="mb-4" style="display: none">
+              <div
+                class="d-flex justify-content-between align-items-center mb-2"
+              >
+                <small class="text-gray-600">File capacity usage:</small>
+                <small id="capacityPercent" class="fw-bold">0%</small>
+              </div>
+              <div class="progress" style="height: 8px">
+                <div
+                  class="progress-bar"
+                  role="progressbar"
+                  style="width: 0%"
+                ></div>
+              </div>
+            </div>
+
+            <div class="d-grid">
+              <button
+                type="submit"
+                class="btn btn-primary btn-lg"
+                id="submitBtn"
+              >
+                <i class="fas fa-magic"></i> Encrypt & Hide Message
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="row mt-4">
+        <div class="col-md-4">
+          <div class="card border-0 bg-light-blue text-center h-100">
+            <div class="card-body">
+              <div
+                class="feature-icon mx-auto mb-2"
+                style="width: 3rem; height: 3rem; font-size: 1.2rem"
+              >
+                <span class="fw-bold">1</span>
+              </div>
+              <h6 class="fw-bold">Encrypt</h6>
+              <small class="text-gray-600"
+                >Message encrypted with RSA-2048</small
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 bg-light-blue text-center h-100">
+            <div class="card-body">
+              <div
+                class="feature-icon mx-auto mb-2"
+                style="width: 3rem; height: 3rem; font-size: 1.2rem"
+              >
+                <span class="fw-bold">2</span>
+              </div>
+              <h6 class="fw-bold">Hide</h6>
+              <small class="text-gray-600"
+                >Embedded using LSB steganography</small
+              >
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 bg-light-blue text-center h-100">
+            <div class="card-body">
+              <div
+                class="feature-icon mx-auto mb-2"
+                style="width: 3rem; height: 3rem; font-size: 1.2rem"
+              >
+                <span class="fw-bold">3</span>
+              </div>
+              <h6 class="fw-bold">Share</h6>
+              <small class="text-gray-600">Looks like normal media file</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const fileInput = document.getElementById("file");
+    const messageTextarea = document.getElementById("message");
+    const charCount = document.getElementById("charCount");
+    const capacityInfo = document.getElementById("capacityInfo");
+    const capacityIndicator = document.getElementById("capacityIndicator");
+    const capacityPercent = document.getElementById("capacityPercent");
+    const submitBtn = document.getElementById("submitBtn");
+    const useOwnKey = document.getElementById("useOwnKey");
+    const useSenderKey = document.getElementById("useSenderKey");
+    const customKeySection = document.getElementById("customKeySection");
+
+    // Handle public key option toggling
+    useOwnKey.addEventListener("change", function () {
+      if (this.checked) {
+        customKeySection.style.display = "none";
+        document
+          .getElementById("custom_public_key")
+          .removeAttribute("required");
+      }
+    });
+
+    useSenderKey.addEventListener("change", function () {
+      if (this.checked) {
+        customKeySection.style.display = "block";
+        document
+          .getElementById("custom_public_key")
+          .setAttribute("required", "required");
+      }
+    });
+
+    function updateCharCount() {
+      const count = messageTextarea.value.length;
+      charCount.textContent = count.toLocaleString();
+
+      if (fileInput.files.length > 0) {
+        checkCapacity();
+      }
+    }
+
+    function checkCapacity() {
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+      formData.append("message", messageTextarea.value);
+
+      fetch("/stego/check_capacity", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: formData,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.error) {
+            capacityInfo.textContent = ` - ${data.error}`;
+            capacityInfo.className = "text-danger";
+            return;
+          }
+
+          const progressBar = capacityIndicator.querySelector(".progress-bar");
+          const canHide = data.can_hide;
+          const usagePercent = Math.min(data.usage_percent, 100);
+
+          capacityIndicator.style.display = "block";
+          progressBar.style.width = `${usagePercent}%`;
+          progressBar.className = `progress-bar ${
+            canHide ? "bg-success" : "bg-danger"
+          }`;
+
+          capacityPercent.textContent = `${usagePercent.toFixed(1)}%`;
+          capacityInfo.textContent = ` - Capacity: ${data.max_capacity.toLocaleString()} chars`;
+          capacityInfo.className = canHide ? "text-success" : "text-danger";
+
+          submitBtn.disabled = !canHide;
+          if (!canHide) {
+            submitBtn.innerHTML =
+              '<i class="fas fa-exclamation-triangle"></i> Message Too Large';
+            submitBtn.className = "btn btn-danger btn-lg";
+          } else {
+            submitBtn.innerHTML =
+              '<i class="fas fa-magic"></i> Encrypt & Hide Message';
+            submitBtn.className = "btn btn-primary btn-lg";
+          }
+        })
+        .catch((error) => {
+          console.error("Capacity check failed:", error);
+        });
+    }
+
+    messageTextarea.addEventListener("input", updateCharCount);
+    fileInput.addEventListener("change", function () {
+      if (this.files.length > 0 && messageTextarea.value) {
+        checkCapacity();
+      } else {
+        capacityIndicator.style.display = "none";
+      }
+    });
+
+    updateCharCount();
+  });
+</script>
+{% endblock %}

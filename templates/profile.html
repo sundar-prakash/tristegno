@@ -1,0 +1,487 @@
+{% extends 'layout.html' %} {% block title %}My Profile{% endblock %} {% block
+content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <!-- Profile Header -->
+      <div class="card border-light-blue mb-4">
+        <div class="card-header">
+          <h4 class="mb-0"><i class="fas fa-user-cog"></i> My Profile</h4>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card bg-light-blue border-0">
+                <div class="card-body text-center">
+                  <div class="feature-icon mx-auto mb-3">
+                    <i class="fas fa-user"></i>
+                  </div>
+                  <h5 class="fw-bold text-dark">{{ user.email }}</h5>
+                  <p class="text-gray-600 mb-0">Account Email</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card bg-light-blue border-0">
+                <div class="card-body text-center">
+                  <div class="feature-icon mx-auto mb-3">
+                    <i class="fas fa-key"></i>
+                  </div>
+                  <h5 class="fw-bold text-dark">
+                    {% if user.public_key %}
+                    <span class="text-success">Active</span>
+                    {% else %}
+                    <span class="text-warning">Not Generated</span>
+                    {% endif %}
+                  </h5>
+                  <p class="text-gray-600 mb-0">Encryption Keys</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Key Management Section -->
+      {% if user.public_key %}
+      <div class="card border-light-blue mb-4">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-key text-success"></i> Your Encryption Keys
+          </h5>
+        </div>
+        <div class="card-body">
+          <!-- Public Key Display -->
+          <div class="mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h6 class="fw-bold mb-0">
+                <i class="fas fa-unlock text-primary"></i> Public Key
+              </h6>
+              <div>
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  onclick="copyPublicKey()"
+                >
+                  <i class="fas fa-copy"></i> Copy
+                </button>
+                <button
+                  class="btn btn-outline-secondary btn-sm"
+                  onclick="downloadPublicKey()"
+                >
+                  <i class="fas fa-download"></i> Download
+                </button>
+              </div>
+            </div>
+            <textarea
+              class="form-control code-font"
+              id="publicKey"
+              rows="8"
+              readonly
+              style="font-size: 0.75rem; line-height: 1.3; resize: none"
+            >
+{{ user.public_key }}</textarea
+            >
+            <small class="form-text text-muted">
+              <i class="fas fa-info-circle"></i>
+              This is your public key. You can safely share this with others.
+            </small>
+          </div>
+
+          <!-- Private Key Info -->
+          <div class="alert alert-warning border-0">
+            <h6 class="fw-bold mb-2">
+              <i class="fas fa-exclamation-triangle"></i> Private Key Security
+            </h6>
+            <ul class="mb-0">
+              <li>
+                Your private key is <strong>never stored</strong> on our servers
+              </li>
+              <li>
+                It was shown to you <strong>only once</strong> during key
+                generation
+              </li>
+              <li>Keep it safe and backed up - lost keys mean lost messages</li>
+              <li>Never share your private key with anyone</li>
+            </ul>
+          </div>
+
+          <!-- Key Actions -->
+          <div class="row mt-3">
+            <div class="col-md-6">
+              <button
+                class="btn btn-danger w-100"
+                onclick="confirmRegenerateKeys()"
+              >
+                <i class="fas fa-refresh"></i> Generate New Keys
+              </button>
+              <small class="form-text text-muted text-center d-block mt-1">
+                This will invalidate all existing hidden messages
+              </small>
+            </div>
+            <div class="col-md-6">
+              <a
+                href="{{ url_for('stego.history') }}"
+                class="btn btn-outline-info w-100"
+              >
+                <i class="fas fa-history"></i> View Key Usage History
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="card border-light-blue mb-4">
+        <div class="card-body text-center py-5">
+          <div class="feature-icon mx-auto mb-3">
+            <i class="fas fa-key"></i>
+          </div>
+          <h5 class="fw-bold text-dark">No Encryption Keys Yet</h5>
+          <p class="text-gray-600 mb-4">
+            Your RSA key pair will be automatically generated when you hide your
+            first message.
+          </p>
+          <a href="{{ url_for('stego.encode') }}" class="btn btn-primary">
+            <i class="fas fa-magic"></i> Hide Your First Message
+          </a>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Password Change Form -->
+      <div class="card border-light-blue">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-shield-alt text-primary"></i> Change Password
+          </h5>
+        </div>
+        <div class="card-body">
+          <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="current_password" class="form-label fw-bold"
+                    >Current Password</label
+                  >
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="current_password"
+                    name="current_password"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="new_password" class="form-label fw-bold"
+                    >New Password</label
+                  >
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="new_password"
+                    name="new_password"
+                    required
+                    minlength="8"
+                  />
+                  <div class="form-text">At least 8 characters long</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="confirm_password" class="form-label fw-bold"
+                >Confirm New Password</label
+              >
+              <input
+                type="password"
+                class="form-control"
+                id="confirm_password"
+                name="confirm_password"
+                required
+              />
+            </div>
+
+            <div class="d-grid col-md-6 mx-auto">
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Update Password
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Security Information -->
+      <div class="card border-light-blue mt-4">
+        <div class="card-header">
+          <h5 class="mb-0">
+            <i class="fas fa-info-circle"></i> Security Information
+          </h5>
+        </div>
+        <div class="card-body bg-light-blue">
+          <div class="row">
+            <div class="col-md-3 mb-3 text-center">
+              <i
+                class="fas fa-user-secret text-success mb-2"
+                style="font-size: 2rem"
+              ></i>
+              <h6 class="fw-bold text-dark">Zero-Knowledge</h6>
+              <small class="text-gray-600">Private keys never stored</small>
+            </div>
+            <div class="col-md-3 mb-3 text-center">
+              <i
+                class="fas fa-lock text-warning mb-2"
+                style="font-size: 2rem"
+              ></i>
+              <h6 class="fw-bold text-dark">RSA-2048</h6>
+              <small class="text-gray-600">Military-grade encryption</small>
+            </div>
+            <div class="col-md-3 mb-3 text-center">
+              <i
+                class="fas fa-eye-slash text-primary mb-2"
+                style="font-size: 2rem"
+              ></i>
+              <h6 class="fw-bold text-dark">Steganography</h6>
+              <small class="text-gray-600">LSB hiding technique</small>
+            </div>
+            <div class="col-md-3 mb-3 text-center">
+              <i
+                class="fas fa-history text-info mb-2"
+                style="font-size: 2rem"
+              ></i>
+              <h6 class="fw-bold text-dark">Audit Trail</h6>
+              <small class="text-gray-600">
+                <a
+                  href="{{ url_for('stego.history') }}"
+                  class="text-decoration-none"
+                >
+                  View history
+                </a>
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Key Regeneration Modal -->
+<div class="modal fade" id="regenerateModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="fas fa-exclamation-triangle"></i> Regenerate Keys
+        </h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning">
+          <strong>Warning:</strong> This action cannot be undone!
+        </div>
+        <p>Regenerating your keys will:</p>
+        <ul>
+          <li>Create a new RSA key pair</li>
+          <li>
+            Make all existing hidden messages <strong>unrecoverable</strong>
+          </li>
+          <li>Require you to save the new private key</li>
+        </ul>
+        <p class="mb-0">Are you sure you want to continue?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-danger" onclick="regenerateKeys()">
+          <i class="fas fa-refresh"></i> Yes, Regenerate Keys
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function copyPublicKey() {
+    const publicKey = document.getElementById("publicKey");
+    publicKey.select();
+    document.execCommand("copy");
+
+    // Visual feedback
+    const btn = event.target.closest("button");
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    btn.className = "btn btn-success btn-sm";
+    setTimeout(() => {
+      btn.innerHTML = originalHTML;
+      btn.className = "btn btn-outline-primary btn-sm";
+    }, 2000);
+  }
+
+  function downloadPublicKey() {
+    const publicKey = document.getElementById("publicKey").value;
+    const blob = new Blob([publicKey], { type: "text/plain" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "public_key.pem";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
+
+  function confirmRegenerateKeys() {
+    const modal = new bootstrap.Modal(
+      document.getElementById("regenerateModal")
+    );
+    modal.show();
+  }
+
+  function regenerateKeys() {
+    // Show loading state
+    const btn = event.target;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Regenerating...';
+
+    // Send request to regenerate keys
+    fetch("/auth/regenerate-keys", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token() }}",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          // Show private key in new modal
+          showPrivateKey(data.private_key);
+        } else {
+          alert("Failed to regenerate keys: " + data.error);
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Failed to regenerate keys");
+      })
+      .finally(() => {
+        // Close modal
+        bootstrap.Modal.getInstance(
+          document.getElementById("regenerateModal")
+        ).hide();
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-refresh"></i> Yes, Regenerate Keys';
+      });
+  }
+
+  function showPrivateKey(privateKey) {
+    // Create and show private key modal
+    const modalHTML = `
+        <div class="modal fade" id="privateKeyModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title">
+                            <i class="fas fa-key"></i> Your New Private Key
+                        </h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning">
+                            <strong>Save this key now!</strong> It will never be shown again.
+                        </div>
+                        <textarea class="form-control code-font" rows="15" readonly style="font-size: 0.75rem;">${privateKey}</textarea>
+                        <div class="mt-3 text-center">
+                            <button class="btn btn-primary me-2" onclick="copyPrivateKey()">
+                                <i class="fas fa-copy"></i> Copy Private Key
+                            </button>
+                            <button class="btn btn-success" onclick="downloadPrivateKey()">
+                                <i class="fas fa-download"></i> Download as File
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closePrivateKeyModal()">
+                            I've Saved My Key
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
+    const modal = new bootstrap.Modal(
+      document.getElementById("privateKeyModal"),
+      {
+        backdrop: "static",
+        keyboard: false,
+      }
+    );
+    modal.show();
+
+    window.currentPrivateKey = privateKey;
+  }
+
+  function copyPrivateKey() {
+    const textarea = document.querySelector("#privateKeyModal textarea");
+    textarea.select();
+    document.execCommand("copy");
+
+    const btn = event.target.closest("button");
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    btn.className = "btn btn-success me-2";
+    setTimeout(() => {
+      btn.innerHTML = originalHTML;
+      btn.className = "btn btn-primary me-2";
+    }, 2000);
+  }
+
+  function downloadPrivateKey() {
+    const blob = new Blob([window.currentPrivateKey], { type: "text/plain" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "private_key.pem";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }
+
+  function closePrivateKeyModal() {
+    const modal = bootstrap.Modal.getInstance(
+      document.getElementById("privateKeyModal")
+    );
+    modal.hide();
+    document.getElementById("privateKeyModal").remove();
+    delete window.currentPrivateKey;
+    location.reload(); // Refresh to show updated public key
+  }
+
+  // Password validation
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector("form");
+    const newPassword = document.getElementById("new_password");
+    const confirmPassword = document.getElementById("confirm_password");
+
+    function validatePasswords() {
+      if (newPassword.value !== confirmPassword.value) {
+        confirmPassword.setCustomValidity("Passwords do not match");
+      } else {
+        confirmPassword.setCustomValidity("");
+      }
+    }
+
+    newPassword.addEventListener("input", validatePasswords);
+    confirmPassword.addEventListener("input", validatePasswords);
+  });
+</script>
+{% endblock %}
