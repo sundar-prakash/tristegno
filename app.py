@@ -71,6 +71,15 @@ def create_app(config_name=None):
                              error_code=413, 
                              error_message="File too large. Maximum size is 200MB"), 413
     
+    @app.errorhandler(400)
+    def bad_request_error(error):
+        error_message = "Bad request"
+        if hasattr(error, 'description') and error.description:
+            error_message = error.description
+        return render_template('error.html', 
+                             error_code=400, 
+                             error_message=error_message), 400
+    
     return app
 
 if __name__ == '__main__':

@@ -30,6 +30,7 @@
             <div class="card mt-3">
                 <div class="card-body">
                     <form method="POST" action="{{ url_for('stego.encode') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
                         <input type="hidden" name="message" value="{{ message }}">
                         <input type="hidden" name="filename" value="{{ filename }}">
                         <div class="form-check">
